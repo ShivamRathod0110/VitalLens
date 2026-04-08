@@ -43,8 +43,8 @@ export default function Scan() {
         (result, err) => {
           if (result) {
             setState('success')
+            stopScanner() // Stop immediately
             setTimeout(() => {
-              stopScanner()
               navigate(`/product?barcode=${result.getText()}`)
             }, 500)
           }
@@ -73,12 +73,13 @@ export default function Scan() {
   function handleManualSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (manualBarcode.trim()) {
+      stopScanner()
       navigate(`/product?barcode=${manualBarcode.trim()}`)
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-black z-[100] flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)]">
+    <div className="fixed inset-0 bg-black z-10 flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)]">
       
       {/* Background Camera Feed */}
       <video
@@ -94,7 +95,10 @@ export default function Scan() {
       {/* Top Bar - Dynamic Padding */}
       <div className="relative z-10 p-6 flex items-center justify-between mt-2">
         <button 
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            stopScanner()
+            navigate(-1)
+          }}
           className="w-12 h-12 glass-panel rounded-2xl flex items-center justify-center text-white"
         >
           <X size={24} />

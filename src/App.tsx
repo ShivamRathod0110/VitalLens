@@ -39,7 +39,7 @@ function AppContent() {
       {/* Navigation Blur Gradient */}
       <div className="nav-blur" />
 
-      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-[382px] glass-panel border-white/40 rounded-[2.5rem] grid grid-cols-5 items-center h-20 z-50 px-2 shadow-[0_20px_50px_rgba(26,46,34,0.15)]">
+      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-[382px] glass-panel border-white/40 rounded-[2.5rem] grid grid-cols-5 items-center h-20 z-[200] px-2 shadow-[0_20px_50px_rgba(26,46,34,0.15)]">
         <NavButton to="/" icon={<HomeIcon size={20} />} label="Home" />
         <NavButton to="/search" icon={<SearchIcon size={20} />} label="Search" />
         <NavButton to="/scan" icon={<Camera size={26} strokeWidth={1.5} />} label="Scan" isCenter />
