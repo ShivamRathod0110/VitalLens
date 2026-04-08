@@ -51,6 +51,46 @@ This document aligns our current build with the **VitalLens PRD v1**. It tracks 
 
 ---
 
+## 🟠 Phase 3.5: Smart Decision Support (Bridging Phase 3 & 4)
+
+### 🧬 Feature I: The Synergist (Cross-Product Compatibility)
+- **Logic:** Proactively warns during a scan if the product's ingredients clash with items already in their "Virtual Vanity" (e.g., Retinol vs. AHA).
+- **Tech:** Zustand (Vanity state) + IndexedDB (Ingredient clash matrix).
+
+### ↔️ Feature J: The Flash-Compare Swipe
+- **Logic:** Horizontal swipe gesture on scanned product cards to instantly compare against the "Best-in-Category" item from the user's history.
+- **Tech:** IndexedDB + React state for comparison overlay.
+
+### 🛡️ Feature K: Safety Shield (Aggressive Trace Detection)
+- **Logic:** High-intensity alerts (haptic + red UI) for users with severe allergies by specifically scanning `traces` and `facility` fields in the API data.
+- **Tech:** ProfileStore (Allergens) + Open Food Facts `traces_tags`.
+
+### 💵 Feature L: The Health-Value Metric
+- **Logic:** A "Score-per-Dollar" calculation to help users optimize their budget for the highest health or cosmetic benefit.
+- **Tech:** Zustand (Budget prefs) + Open Food Facts pricing data or user input.
+
+---
+
+## 🟠 Phase 3.75: The Intelligent Ingredient Engine
+
+### 🌿 Feature M: The "Source Origin" Visual Spectrum (Phase A)
+- **Logic:** Introduce visual origin indicators (🌿, 🧪, 🪨) next to ingredient names to denote natural, synthetic, or mineral origins.
+- **Tech:** Update `ingredientTypes.ts` (origin enum) and `IngredientItem.tsx` (UI icons).
+
+### ✨ Feature N: Profile-Driven "Vital Match" (Phase A)
+- **Logic:** Dynamically highlight how an ingredient matches the user's specific goals or allergies.
+- **Tech:** Connect `IngredientItem.tsx` to Zustand `ProfileStore` and add `benefits`/`warnings` to `ingredientDB.ts`.
+
+### 🧬 Feature O: The "Biological Story" & Processing Tiers (Phase B/C)
+- **Logic:** Shift descriptions to "Industrial Purpose vs. Biological Impact" and flag NOVA ultra-processed markers.
+- **Tech:** Content update in DB + Open Food Facts NOVA tags.
+
+### 🔬 Feature P: Synergy & Conflict Badges (Phase C)
+- **Logic:** Analyze the entire ingredient list to find interactions (e.g., Vitamin C + Iron = Synergy).
+- **Tech:** Build interaction matrix in `src/scoring/`.
+
+---
+
 ## 🟠 Phase 4: Advanced Personalization & Social Trust
 
 ### 🍱 Feature E: The Harmony Map & Glow Index
