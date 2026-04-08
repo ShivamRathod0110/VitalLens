@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Instrument Serif", serif;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+
+  /* The Serene Lens Palette */
+  --color-brand-primary: #1A2E22;    /* Deep Forest */
+  --color-brand-cream: #FDFCFB;      /* Linen/Eggshell */
+  --color-brand-sage: #E8EDEA;        /* Soft Sage */
+  --color-brand-accent: #D4B996;      /* Warm Sand */
+  
+  --color-status-safe: #E7F2EC;       /* Soft Green */
+  --color-status-warning: #FFF8E7;    /* Soft Amber */
+  --color-status-danger: #FDF2F2;     /* Soft Red */
+  
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-4xl: 3rem;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-cream font-sans text-brand-primary selection:bg-brand-accent/30;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-white/40 backdrop-blur-xl border border-white/20 shadow-sm;
+  }
+  
+  .editorial-card {
+    @apply bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-brand-sage/40 transition-all duration-300;
+  }
+  
+  .editorial-card:hover {
+    @apply shadow-[0_20px_40px_rgb(0,0,0,0.06)] -translate-y-1;
+  }
+  
+  .btn-primary {
+    @apply bg-brand-primary text-white px-8 py-4 rounded-2xl font-semibold tracking-wide transition-all active:scale-95 hover:bg-brand-primary/90 shadow-lg shadow-brand-primary/10;
+  }
+
+  .nav-blur {
+    @apply fixed bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-brand-cream to-transparent pointer-events-none z-40;
+  }
+}
+
+/* Micro-interactions */
+.stagger-entrance > * {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: entrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes entrance {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom progress rings */
+.progress-ring {
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
