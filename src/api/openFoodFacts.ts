@@ -3,7 +3,6 @@ import { getProductOverride } from '../lib/productOverrides'
 
 
 const BASE = 'https://world.openfoodfacts.org/api/v0/product'
-const USER_AGENT = 'VitalLens/1.0 (vitallens@example.com)'
 
 
 
