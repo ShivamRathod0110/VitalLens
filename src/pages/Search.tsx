@@ -1,19 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search as SearchIcon, ChevronRight, Loader2, Frown, Sparkles } from 'lucide-react'
-
-type SearchProduct = {
-  code: string
-  product_name: string
-  brands: string
-  image_front_small_url: string
-  nutriments: { 'energy-kcal_100g'?: number; proteins_100g?: number; sugars_100g?: number }
-}
+import { Search as SearchIcon, ChevronRight, Loader2, Frown, Sparkles, AlertCircle } from 'lucide-react'
+import { searchProducts } from '../api/openFoodFacts'
+import type { Product } from '../types/product'
 
 export default function Search() {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<SearchProduct[]>([])
+  const [results, setResults] = useState<Product[]>([])
   const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const navigate = useNavigate()
 
@@ -26,23 +20,17 @@ export default function Search() {
     setResults([])
 
     try {
-      const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=20&fields=code,product_name,brands,image_front_small_url,nutriments`
-      const res = await fetch(url, {
-        headers: { 'User-Agent': 'VitalLens/1.0 (vitallens@example.com)' }
-      })
-      const json = await res.json()
-      const products = (json.products ?? []).filter((p: SearchProduct) => 
-        p.code && p.product_name && p.product_name.trim().length > 0
-      )
+      const products = await searchProducts(q)
       setResults(products)
       setState('done')
-    } catch {
+    } catch (err) {
+      console.error('Search error:', err)
       setState('error')
     }
   }
 
   return (
-    <div className="flex flex-col px-6 pt-16 pb-24 gap-10 min-h-svh relative overflow-hidden">
+    <div className="flex flex-col px-6 pt-16 pb-24 gap-10 min-h-svh relative overflow-hidden bg-brand-cream/30">
       
       {/* Decorative Background Blobs */}
       <div className="absolute top-[10%] right-[-10%] w-[80%] aspect-square bg-brand-sage/10 rounded-full blur-[100px] -z-10" />
@@ -108,6 +96,31 @@ export default function Search() {
             </motion.div>
           )}
 
+          {state === 'error' && (
+            <motion.div 
+              key="error"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="editorial-card py-20 text-center space-y-8 bg-red-50/50 border-red-100 border-dashed"
+            >
+              <div className="w-20 h-20 glass-panel border-red-200 rounded-full mx-auto flex items-center justify-center text-red-500">
+                <AlertCircle size={32} />
+              </div>
+              <div className="space-y-3">
+                <h3 className="font-serif text-3xl text-brand-primary italic">Connection Failed</h3>
+                <p className="text-brand-primary/40 text-sm font-light max-w-[220px] mx-auto leading-relaxed">
+                  The registry is currently unreachable. Please check your link.
+                </p>
+              </div>
+              <button 
+                onClick={doSearch}
+                className="btn-primary px-8 py-3 text-xs rounded-2xl mx-auto"
+              >
+                Retry Search
+              </button>
+            </motion.div>
+          )}
+
           {state === 'done' && results.length === 0 && (
             <motion.div 
               key="empty"
@@ -145,28 +158,28 @@ export default function Search() {
               <div className="space-y-4 stagger-entrance">
                 {results.map((p) => (
                   <motion.button
-                    key={p.code}
-                    onClick={() => navigate(`/product?barcode=${p.code}`)}
+                    key={p.barcode}
+                    onClick={() => navigate(`/product?barcode=${p.barcode}`)}
                     className="w-full editorial-card flex items-center gap-5 group active:scale-[0.99] hover:bg-white"
                   >
                     <div className="w-16 h-16 bg-brand-cream rounded-2xl flex items-center justify-center overflow-hidden shrink-0 border border-brand-sage/50 p-3 group-hover:scale-105 transition-transform">
-                      {p.image_front_small_url ? (
-                        <img src={p.image_front_small_url} alt="" className="w-full h-full object-contain" />
+                      {p.imageUrl ? (
+                        <img src={p.imageUrl} alt="" className="w-full h-full object-contain" />
                       ) : (
                         <span className="text-3xl opacity-20 grayscale">📦</span>
                       )}
                     </div>
                     <div className="flex-1 min-w-0 text-left space-y-1">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-brand-accent truncate">{p.brands || 'Original Registry'}</p>
-                      <p className="text-base font-serif italic text-brand-primary truncate">{p.product_name}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-brand-accent truncate">{p.brand || 'Original Registry'}</p>
+                      <p className="text-base font-serif italic text-brand-primary truncate">{p.name}</p>
                       <div className="flex gap-2 pt-1">
-                        {p.nutriments?.['energy-kcal_100g'] != null && (
+                        {p.nutritionPer100g?.energyKcal != null && (
                           <span className="bg-brand-sage/50 text-brand-primary/40 text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-tighter">
-                            {Math.round(p.nutriments['energy-kcal_100g'])} kcal
+                            {Math.round(p.nutritionPer100g.energyKcal)} kcal
                           </span>
                         )}
                         <span className="bg-brand-sage/50 text-brand-primary/40 text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-tighter">
-                          ID: {p.code.slice(-6)}
+                          ID: {p.barcode.slice(-6)}
                         </span>
                       </div>
                     </div>

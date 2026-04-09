@@ -13,9 +13,7 @@ export async function fetchProductByBarcode(barcode: string): Promise<Product | 
   if (override) return override
 
   try {
-    const res = await fetch(`${BASE}/${barcode}.json`, {
-      headers: { 'User-Agent': USER_AGENT },
-    })
+    const res = await fetch(`${BASE}/${barcode}.json`)
 
     if (res.status === 404) return null
     if (!res.ok) throw new Error(`API error: ${res.status}`)
@@ -124,9 +122,7 @@ export async function fetchProductByBarcode(barcode: string): Promise<Product | 
 export async function searchProducts(query: string, page: number = 1): Promise<Product[]> {
   const pageSize = 20
 
-  const res = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=1&page=${page}&page_size=${pageSize}`, {
-    headers: { 'User-Agent': USER_AGENT },
-  })
+  const res = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=1&page=${page}&page_size=${pageSize}`)
 
   if (!res.ok) return []
 
