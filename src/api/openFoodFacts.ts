@@ -121,52 +121,58 @@ export async function fetchProductByBarcode(barcode: string): Promise<Product | 
 export async function searchProducts(query: string, page: number = 1): Promise<Product[]> {
   const pageSize = 20
 
-  const res = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=1&page=${page}&page_size=${pageSize}`)
+  try {
+    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page=${page}&page_size=${pageSize}&fields=code,product_name,brands,image_front_url,nutriments,categories,categories_tags`
+    const res = await fetch(url)
 
-  if (!res.ok) return []
+    if (!res.ok) return []
 
-  const json = await res.json()
-  if (!json.products || !Array.isArray(json.products)) return []
+    const json = await res.json()
+    if (!json.products || !Array.isArray(json.products)) return []
 
-  return json.products
-    .map((p: any) => {
-      const categoriesString = ((p.categories || '') + (p.categories_tags || []).join(' ')).toLowerCase()
-      const isCosmetic =
-        categoriesString.includes('cosmetic') ||
-        categoriesString.includes('beauty') ||
-        categoriesString.includes('personal care') ||
-        categoriesString.includes('shampoo')
+    return json.products
+      .map((p: any) => {
+        const categoriesString = ((p.categories || '') + (p.categories_tags || []).join(' ')).toLowerCase()
+        const isCosmetic =
+          categoriesString.includes('cosmetic') ||
+          categoriesString.includes('beauty') ||
+          categoriesString.includes('personal care') ||
+          categoriesString.includes('shampoo')
 
-      const product: Product = {
-        barcode: String(p.code || '').trim(),
-        name: p.product_name?.trim() || 'Unknown',
-        brand: p.brands?.trim() || 'Unknown',
-        category: isCosmetic ? 'cosmetic' : 'food',
-        imageUrl: p.image_front_url || null,
-        ingredients: typeof p.ingredients_text === 'string' ? [p.ingredients_text] : [],
-        additives: Array.isArray(p.additives_tags) ? p.additives_tags.map((t: string) => t.replace('en:', '')) : [],
-        dataSource: 'off',
-        dataQuality: 'partial',
-      }
-
-      if (!isCosmetic && p.nutriments) {
-        product.nutritionPer100g = {
-          energyKcal: p.nutriments['energy-kcal_100g'],
-          fat: p.nutriments['fat_100g'],
-          saturatedFat: p.nutriments['saturated-fat_100g'],
-          carbs: p.nutriments['carbohydrates_100g'],
-          sugar: p.nutriments['sugars_100g'],
-          fiber: p.nutriments['fiber_100g'],
-          protein: p.nutriments['proteins_100g'],
-          salt: p.nutriments['salt_100g'],
+        const product: Product = {
+          barcode: String(p.code || '').trim(),
+          name: p.product_name?.trim() || 'Unknown',
+          brand: p.brands?.trim() || 'Unknown',
+          category: isCosmetic ? 'cosmetic' : 'food',
+          imageUrl: p.image_front_url || null,
+          ingredients: typeof p.ingredients_text === 'string' ? [p.ingredients_text] : [],
+          additives: Array.isArray(p.additives_tags) ? p.additives_tags.map((t: string) => t.replace('en:', '')) : [],
+          dataSource: 'off',
+          dataQuality: 'partial',
         }
-      }
 
-      if (isCosmetic && product.ingredients.length > 0) {
-        product.cosmeticIngredients = product.ingredients.map(name => ({ name }))
-      }
+        if (!isCosmetic && p.nutriments) {
+          product.nutritionPer100g = {
+            energyKcal: p.nutriments['energy-kcal_100g'],
+            fat: p.nutriments['fat_100g'],
+            saturatedFat: p.nutriments['saturated-fat_100g'],
+            carbs: p.nutriments['carbohydrates_100g'],
+            sugar: p.nutriments['sugars_100g'],
+            fiber: p.nutriments['fiber_100g'],
+            protein: p.nutriments['proteins_100g'],
+            salt: p.nutriments['salt_100g'],
+          }
+        }
 
-      return product
-    })
-    .filter((p: Product) => p.barcode && p.name && p.name.length > 0)
+        if (isCosmetic && product.ingredients.length > 0) {
+          product.cosmeticIngredients = product.ingredients.map(name => ({ name }))
+        }
+
+        return product
+      })
+      .filter((p: Product) => p.barcode && p.name && p.name.length > 0)
+  } catch (error) {
+    console.error('Search error:', error)
+    return []
+  }
 }
